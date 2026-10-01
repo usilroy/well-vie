@@ -160,6 +160,18 @@ input, textarea, select { min-height: 54px; border-radius: 18px; }
 .navigation-drawer nav button { display: flex; align-items: center; gap: 16px; width: 100%; min-height: 56px; padding: 14px 16px; border-radius: 18px; text-align: left; color: var(--heading); font: 400 15px/1.5 var(--font-body); }
 .navigation-drawer nav button[aria-current=page], .navigation-drawer nav button:hover { background: var(--wash); }
 .navigation-drawer nav .badge { margin-left: auto; }
+.navigation-drawer[open] { display:flex; flex-direction:column; }
+.drawer-heading, .navigation-drawer nav { flex-shrink:0; }
+.drawer-preferences { margin-top:auto; padding-top:28px; flex-shrink:0; }
+.drawer-theme-toggle { position:relative; display:flex; align-items:center; gap:12px; min-height:52px; padding:12px 8px; margin:0; color:var(--heading); font:400 14px/1.5 var(--font-body); cursor:pointer; }
+.drawer-theme-toggle > svg { flex-shrink:0; }
+.drawer-theme-toggle > input { position:absolute; right:8px; width:44px; height:28px; margin:0; opacity:0; cursor:pointer; }
+.drawer-switch-track { margin-left:auto; width:44px; height:28px; flex:0 0 44px; border:1px solid var(--sage); border-radius:20px; background:var(--wash); transition:background 180ms ease; }
+.drawer-switch-track::after { content:''; display:block; width:20px; height:20px; margin:3px; border-radius:50%; background:var(--sage); transition:transform 180ms ease; }
+.drawer-theme-toggle input:checked + .drawer-switch-track { background:var(--heading); border-color:var(--heading); }
+.drawer-theme-toggle input:checked + .drawer-switch-track::after { background:var(--paper); transform:translateX(16px); }
+.drawer-theme-toggle input:focus-visible + .drawer-switch-track { outline:2px solid var(--heading); outline-offset:4px; }
+@media(prefers-reduced-motion:reduce) { .drawer-switch-track, .drawer-switch-track::after { transition:none; } }
 @media(min-width:900px) {
   .app-shell > main { margin-left: 0; }
   .mini-player { left: 32px; right: 32px; }
@@ -385,6 +397,15 @@ input, textarea, select { min-height: 54px; border-radius: 18px; }
 .reflection-history .stack { gap:10px; }
 .reflection-history small { display:block; font-size:12px; line-height:18px; }
 .reflection-link { display:flex; align-items:center; gap:12px; }
+.intention-reminder.card { margin:0 0 28px; padding:18px; background:var(--wash); }
+.intention-reminder .reflection-heading { margin:0; font-size:11px; }
+.intention-reminder > p { margin:12px 0; font:400 22px/1.4 var(--font-display); color:var(--heading); overflow-wrap:anywhere; }
+.intention-reminder > div { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+.intention-reminder .text-action { min-height:36px; font-size:12px; }
+.affirmation-history > p { font-size:14px; line-height:1.5; margin:0 0 16px; }
+.affirmation-history h3 { margin:0 0 10px; }
+.affirmation-history .affirmation-copy { white-space:pre-wrap; }
+.affirmation-history .text-action { margin-top:8px; min-height:40px; }
 .empty > svg { display:block; margin:0 auto 12px; color:var(--green); }
 .empty h2 { margin:0; }
 .empty p { margin:8px 0 0; line-height:1.5; }

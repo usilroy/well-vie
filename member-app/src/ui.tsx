@@ -1,3 +1,4 @@
+import type {NavigationCheck} from './confirm-dialog';
 import {useCallback,useEffect,useRef,useState,type ReactNode} from 'react';
 import {ArrowLeft,ChevronRight,LoaderCircle} from 'lucide-react';
 import {safeError,cleanCopy} from './data';
@@ -11,6 +12,24 @@ export function Empty({title,children,icon}:{title:string;children?:ReactNode;ic
 export function LinkCard({title,detail,icon,onClick}:{title:string;detail?:string;icon?:ReactNode;onClick:()=>void}){return <button className="card link-card" onClick={onClick}>{icon&&<span className="tile-icon">{icon}</span>}<span className="grow"><strong>{cleanCopy(title)}</strong>{detail&&<span className="muted">{cleanCopy(detail)}</span>}</span><ChevronRight size={20}/></button>;}
 export function useLoad<T>(load:()=>Promise<T>,keys:unknown[]=[]){const [data,setData]=useState<T>();const [error,setStoredError]=useState<string>();const setError=(e:unknown)=>setStoredError(e===undefined?undefined:typeof e==='string'?e:safeError(e));const [loading,setLoading]=useState(true);const ref=useRef(load);ref.current=load;const generation=useRef(0);const reload=useCallback(async()=>{const id=++generation.current;setError(undefined);setLoading(true);try{const next=await ref.current();if(id===generation.current)setData(next);}catch(e){if(id===generation.current)setError(e);}finally{if(id===generation.current)setLoading(false);}},keys);useEffect(()=>{setData(undefined);void reload();return()=>{generation.current++;};},[reload]);return {data,setData,error,loading,reload};}
 export function useAction(){const [busy,setBusy]=useState(false);const [error,setStoredError]=useState<string>();const setError=(e:unknown)=>setStoredError(e===undefined?undefined:typeof e==='string'?e:safeError(e));const lock=useRef(false);const run=async(fn:()=>Promise<void>)=>{if(lock.current)return;lock.current=true;setBusy(true);setError(undefined);try{await fn();}catch(e){setError(e);}finally{lock.current=false;setBusy(false);}};return {busy,error,setError,run};}
-export function useRoute(){const read=()=>{try{return decodeURI(location.hash.slice(1)||'/check-in');}catch{return '/check-in';}};const [route,setRoute]=useState(read);const current=useRef(route);current.current=route;useEffect(()=>{const update=()=>{const next=read();if(next===current.current)return;if(!window.dispatchEvent(new Event('wellvie-before-navigate',{cancelable:true}))){history.replaceState(null,'','#'+current.current);return;}current.current=next;setRoute(next);window.scrollTo(0,0);};window.addEventListener('hashchange',update);return()=>window.removeEventListener('hashchange',update);},[]);const go=(path:string)=>{location.hash=path;};return {route,go};}
+export function useRoute(){
+  const read=()=>{try{return decodeURI(location.hash.slice(1)||'/check-in');}catch{return '/check-in';}};
+  const [route,setRoute]=useState(read);const current=useRef(route),checking=useRef(false);current.current=route;
+  useEffect(()=>{
+    let mounted=true;
+    const update=()=>{
+      const next=read();if(next===current.current)return;
+      if(checking.current){history.replaceState(null,'','#'+current.current);return;}
+      const pending:Promise<boolean>[]=[];
+      const event=new CustomEvent<NavigationCheck>('wellvie-before-navigate',{cancelable:true,detail:{waitUntil:answer=>pending.push(answer)}});
+      const allowed=window.dispatchEvent(event);
+      const commit=()=>{current.current=next;setRoute(next);window.scrollTo(0,0);};
+      if(!allowed||pending.length){history.replaceState(null,'','#'+current.current);if(!allowed)return;checking.current=true;void Promise.all(pending).then(answers=>{if(mounted&&answers.every(Boolean)){history.pushState(null,'','#'+next);commit();}}).finally(()=>{checking.current=false;});}
+      else commit();
+    };
+    window.addEventListener('hashchange',update);return()=>{mounted=false;window.removeEventListener('hashchange',update);};
+  },[]);
+  const go=(path:string)=>{location.hash=path;};return {route,go};
+}
 export const dateLabel=(date:string)=>new Date(date).toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'});
 export const timeLabel=(date:string)=>new Date(date).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});

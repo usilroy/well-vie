@@ -1,12 +1,12 @@
 import {useEffect,useRef,useState,type ReactNode} from 'react';
 import {createPortal} from 'react-dom';
 
-export function BottomSheet({open,onClose,title,children,action,dismissLabel="Done",canDismiss=true,className=""}:{open:boolean;onClose:()=>void;title:string;children:ReactNode;action?:ReactNode;dismissLabel?:string;canDismiss?:boolean;className?:string}){
+export function BottomSheet({open,onClose,title,children,action,dismissLabel="Done",canDismiss=true,onBeforeClose,className=""}:{open:boolean;onClose:()=>void;title:string;children:ReactNode;action?:ReactNode;dismissLabel?:string;canDismiss?:boolean;onBeforeClose?:()=>boolean|Promise<boolean>;className?:string}){
   const panel=useRef<HTMLDialogElement>(null);
   const [closing,setClosing]=useState(false),[drag,setDrag]=useState(0);
   const start=useRef<number|null>(null);
-  const close=()=>{
-    if(!canDismiss)return;
+  const close=async()=>{
+    if(!canDismiss||onBeforeClose&&!await onBeforeClose())return;
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){panel.current?.close();onClose();}
     else setClosing(true);
   };

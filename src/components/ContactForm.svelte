@@ -15,7 +15,7 @@
 	`);
 	const sendEmail = () => {
 		if (fName && lName && email && subject && message) {
-			window.location.href = `mailto:mckenzie@well-vie.com?subject=${encodeURIComponent(subject)}&body=${emailBody}`;
+			window.location.href = `mailto:mckenzie@well-vie.com?subject=${subject}&body=${emailBody}`;
 		} else {
 			alert("Please fill out all fields");
 		}
@@ -68,16 +68,12 @@
 		<textarea id="message" bind:value={message} required></textarea>
 	</label>
 
-	<p class="privacy-note">This opens your email app with a draft to McKenzie; it is sent only when you choose Send there. We use your details to answer your inquiry. Please leave out health information or other sensitive details. <a href="/privacy">Privacy policy</a>.</p>
-
-	<button href={`mailto:<REPLACE@EMAIL>?subject=${encodeURIComponent(subject)}&body=${emailBody}`}
+	<button href={`mailto:<REPLACE@EMAIL>?subject=${subject}&body=${emailBody}`}
 		>Work With Us
 	</button>
 </form>
 
 <style>
-	.privacy-note { grid-column: 1 / -1; font-size: 1rem; line-height: 1.65; }
-	.privacy-note a { color: var(--fg-color); text-decoration: underline; }
 	form {
 		display: grid;
 		grid-template-columns: 1fr 1fr;

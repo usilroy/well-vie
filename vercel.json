@@ -31,10 +31,6 @@
       "dest": "/privacy/index.html"
     },
     {
-      "src": "^/account-deletion/?$",
-      "dest": "/account-deletion/index.html"
-    },
-    {
       "src": "^/invite(?:/.*)?$",
       "headers": {
         "Cache-Control": "no-store",

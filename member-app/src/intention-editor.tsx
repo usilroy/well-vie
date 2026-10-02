@@ -1,3 +1,4 @@
+import {confirmNavigation} from './confirm-dialog';
 import {useEffect,useRef,useState} from 'react';
 import {History} from 'lucide-react';
 import {useMember} from './context';
@@ -29,7 +30,7 @@ export function IntentionEditor({query}:{query:string}){
     };
     const navigate=(event:Event)=>{
       if(saved.current)return;
-      if(action.busy||(dirty&&!window.confirm('Discard your unsaved intention?')))event.preventDefault();
+      if(action.busy)event.preventDefault();else if(dirty)confirmNavigation(event,'Your intention has not been saved.');
     };
     window.addEventListener('beforeunload',unload);
     window.addEventListener('wellvie-before-navigate',navigate);

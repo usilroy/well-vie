@@ -1,0 +1,9 @@
+.wellvie-confirmation { width:min(420px,calc(100vw - 40px)); max-height:calc(100dvh - 48px); box-sizing:border-box; margin:auto; padding:28px; border:1px solid var(--line); border-radius:26px; background:var(--surface); color:var(--green); box-shadow:0 18px 70px #17231526; overflow:auto; animation:wellvie-confirm-in 180ms ease-out; }
+.wellvie-confirmation::backdrop { background:rgba(24,36,27,.35); backdrop-filter:blur(4px); }
+.wellvie-confirmation h2 { margin:0; font:400 30px/1.2 var(--font-display); text-wrap:balance; }
+.wellvie-confirmation p { margin:16px 0 0; color:var(--text); font:400 15px/1.65 var(--font-body); }
+.wellvie-confirm-actions { display:flex; gap:10px; margin-top:26px; }
+.wellvie-confirm-actions button { flex:1; min-width:0; min-height:46px; padding:11px 14px; font-size:14px; }
+@keyframes wellvie-confirm-in { from { opacity:0; transform:translateY(8px) scale(.98); } to { opacity:1; transform:none; } }
+@media(prefers-reduced-motion:reduce) { .wellvie-confirmation { animation:none; } }
+.wellvie-confirm-actions .primary.danger { background:#914536; border-color:#914536; color:#fff; }

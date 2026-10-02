@@ -1,4 +1,5 @@
 import {useEffect,useRef,useState} from 'react';
+import {History} from 'lucide-react';
 import {useMember} from './context';
 import {latestIntention} from './reflections-data';
 import {rpc} from './data';
@@ -35,7 +36,7 @@ export function IntentionEditor({query}:{query:string}){
     return()=>{window.removeEventListener('beforeunload',unload);window.removeEventListener('wellvie-before-navigate',navigate);};
   },[text,action.busy]);
 
-  return <Page className="intention-editor-page" eyebrow="A small direction for today" title="Today, I intend to…" intro="A few words to carry with you.">
+  return <Page className="intention-editor-page" eyebrow="A small direction for today" title="Today, I intend to…" eyebrowAction={<button className="journal-tool-icon" title="Looking back" aria-label="Looking back" disabled={action.busy} onClick={()=>go('/history')}><History size={20}/></button>}>
     <form className="intention-editor-form" onSubmit={event=>{
       event.preventDefault();
       if(load.loading||!text.trim())return;
@@ -50,7 +51,6 @@ export function IntentionEditor({query}:{query:string}){
       {load.error&&<p className="small">Your current intention couldn’t load. You can still write a new one.</p>}
       <textarea aria-label="Your intention" maxLength={500} value={text} disabled={load.loading||action.busy}
         onChange={event=>{eventID.current=crypto.randomUUID();setText(event.target.value);action.setError(undefined);}}/>
-      <p className="small">Your previous intentions stay in Journal → Intentions &amp; history.</p>
       {action.error&&<ErrorBox error="Your intention hasn’t been saved. Please try again."/>}
       <button className="primary full-width" disabled={load.loading||action.busy||!text.trim()}>{action.busy?'Keeping it…':'Keep it'}</button>
     </form>

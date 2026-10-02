@@ -551,9 +551,9 @@ input, textarea, select { min-height: 54px; border-radius: 18px; }
 .intention-reminder .intention-card-copy { display:flex; min-width:0; flex:1; flex-direction:column; align-items:flex-start; gap:8px; }
 .intention-reminder .eyebrow { font-size:12px; letter-spacing:1.8px; }
 .intention-card-text { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; overflow-wrap:anywhere; font:400 22px/1.3 var(--font-display); color:var(--heading); }
-/* Two lines are reserved in every state; only opacity changes when data arrives. */
-.intention-card-slot { display:block; position:relative; width:100%; height:2.6em; font:400 22px/1.3 var(--font-display); }
-.intention-card-text { height:100%; opacity:1; transition:opacity 280ms ease-out; }
+/* Fit the actual text, easing the card and following content into their new positions. */
+.intention-card-slot { display:block; position:relative; width:100%; overflow:hidden; transition:height 320ms ease-in-out; font:400 22px/1.3 var(--font-display); }
+.intention-card-text { opacity:1; transition:opacity 280ms ease-out; }
 .intention-card-slot[data-loading=true] .intention-card-text { opacity:0; }
 .intention-card-placeholder { position:absolute; inset:0; display:flex; align-items:center; opacity:0; transition:opacity 280ms ease-out; pointer-events:none; }
 .wellvie-loading-leaf { display:inline-grid; place-items:center; position:relative; width:48px; height:48px; color:var(--green); animation:wellvie-loading-breath 2400ms cubic-bezier(.445,.05,.55,.95) infinite alternate; animation-play-state:paused; }
@@ -570,8 +570,11 @@ input, textarea, select { min-height: 54px; border-radius: 18px; }
 @keyframes feeling-reveal { from { opacity:0; } to { opacity:1; } }
 .feeling-placeholder:disabled { opacity:1; cursor:default; }
 .feeling-placeholder > span { color:transparent; border-radius:5px; background:var(--wash); }
-@media(prefers-reduced-motion:reduce) { .intention-card-text,.intention-card-placeholder { transition:none; } .first-check-in .feeling > span,.wellvie-loading-leaf { animation:none; } }
+@media(prefers-reduced-motion:reduce) { .intention-card-slot,.intention-card-text,.intention-card-placeholder { transition:none; } .first-check-in .feeling > span,.wellvie-loading-leaf { animation:none; } }
 .intention-reminder > svg { flex:none; }
 .intention-editor-form { display:flex; flex-direction:column; gap:18px; }
 .intention-editor-form textarea { min-height:160px; padding:14px; border-radius:18px; font:400 22px/1.4 var(--font-display); color:var(--heading); resize:vertical; }
 .intention-editor-form .small { margin:0; }
+
+.reflection-history-page .page-title-row { flex-direction:row; align-items:center; }
+.reflection-history-page .page-title-row h1 { flex:1; min-width:0; }

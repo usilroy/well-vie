@@ -3,7 +3,7 @@ const formEndpoint =
 	import.meta.env.PUBLIC_WELL_VIE_FORM_ENDPOINT ??
 	"https://aybrcwtmggiwyzfpwfil.supabase.co/functions/v1/well-vie-forms";
 const confirmationUrl =
-	"https://well-vie-ecosystem-preview.surge.sh/ecosystem/waitlist-confirmation/";
+	"https://www.well-vie.com/ecosystem/waitlist-confirmation/";
 ---
 
 <section id="path-ii-waitlist" class="waitlist-section slide">
@@ -56,15 +56,19 @@ const confirmationUrl =
 		</div>
 
 		<label class="field full-width">
-			<span>What are you hoping to gain from The Ecosystem?</span>
-			<textarea name="What are you hoping to gain from The Ecosystem?" required></textarea>
+			<span>What are you hoping to gain from The Ecosystem? (optional)</span>
+			<textarea name="What are you hoping to gain from The Ecosystem?"></textarea>
 		</label>
 
+		<p class="privacy-note">Please leave out health information and other sensitive details. By joining, you ask Well-Vie to email you about Path II. Your details go to the Well-Vie team by email. You can leave the waitlist at any time by emailing <a href="mailto:mckenzie@well-vie.com">mckenzie@well-vie.com</a>. <a href="/privacy">Privacy policy</a>.</p>
+		<input type="hidden" name="waitlist_notice_version" value="2026-10-02" />
 		<button type="submit" class="btn">Join the Waitlist</button>
 	</form>
 </section>
 
 <style>
+	.privacy-note { font-size: 1rem; line-height: 1.65; }
+	.privacy-note a { color: var(--fg-color); text-decoration: underline; }
 	.waitlist-section {
 		display: flex;
 		flex-direction: column;

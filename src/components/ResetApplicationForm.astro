@@ -3,7 +3,7 @@ const formEndpoint =
 	import.meta.env.PUBLIC_WELL_VIE_FORM_ENDPOINT ??
 	"https://aybrcwtmggiwyzfpwfil.supabase.co/functions/v1/well-vie-forms";
 const confirmationUrl =
-	"https://well-vie-ecosystem-preview.surge.sh/reset/application-confirmation/";
+	"https://www.well-vie.com/reset/application-confirmation/";
 
 const healingJourneyOptions = [
 	"Just beginning",
@@ -48,6 +48,7 @@ const supportAreaOptions = [
 ---
 
 <form
+	id="reset-application"
 	class="application-form"
 	action={formEndpoint}
 	method="POST"
@@ -92,6 +93,20 @@ const supportAreaOptions = [
 		</label>
 	</div>
 
+	<div class="privacy-note">
+		<p>We use your contact details to review your application and reply. Your application goes to the Well-Vie team by email. <a href="/privacy">Read our privacy policy</a>.</p>
+		<p>The questions below are optional. You can apply using only the details above. Share only what feels right, and avoid details about other people.</p>
+		<label class="consent-choice">
+			<input type="checkbox" id="wellbeing-consent" name="wellbeing_consent" value="yes" aria-controls="wellbeing-questions" />
+			<span>I explicitly consent to Well-Vie (McKenzie Cusick Hair LLC) using the optional wellbeing and health information I choose to share below to review my Reset application and discuss suitable support with me.</span>
+		</label>
+		<p>You can withdraw this consent at any time by emailing <a href="mailto:mckenzie@well-vie.com">mckenzie@well-vie.com</a>. This does not affect processing that was lawful before withdrawal.</p>
+	</div>
+	<fieldset id="wellbeing-questions" class="optional-questions" disabled>
+		<legend>Optional wellbeing questions</legend>
+		<input type="hidden" name="wellbeing_consent_version" value="2026-10-02" />
+		<input type="hidden" name="wellbeing_consent_text" value="I explicitly consent to Well-Vie (McKenzie Cusick Hair LLC) using the optional wellbeing and health information I choose to share below to review my Reset application and discuss suitable support with me." />
+
 	<fieldset>
 		<legend>How would you describe where you are in your healing journey?</legend>
 		<div class="options">
@@ -101,7 +116,6 @@ const supportAreaOptions = [
 						type="radio"
 						name="Healing journey"
 						value={option}
-						required={index === 0}
 					/>
 					<span>{option}</span>
 				</label>
@@ -143,7 +157,6 @@ const supportAreaOptions = [
 						type="radio"
 						name="Breathwork experience"
 						value={option}
-						required={index === 0}
 					/>
 					<span>{option}</span>
 				</label>
@@ -174,17 +187,17 @@ const supportAreaOptions = [
 
 	<label class="field full-width">
 		<span>What kind of support are you looking for right now?</span>
-		<textarea name="Current support needed" required></textarea>
+		<textarea name="Current support needed"></textarea>
 	</label>
 
 	<label class="field full-width">
 		<span>What are you hoping life feels like on the other side of this work?</span>
-		<textarea name="Life on the other side" required></textarea>
+		<textarea name="Life on the other side"></textarea>
 	</label>
 
 	<label class="field full-width">
 		<span>Why does now feel like the right time for you?</span>
-		<textarea name="Why now" required></textarea>
+		<textarea name="Why now"></textarea>
 	</label>
 
 	<label class="field full-width">
@@ -192,10 +205,34 @@ const supportAreaOptions = [
 		<textarea name="Anything else"></textarea>
 	</label>
 
+	</fieldset>
+
 	<button type="submit" class="btn">Submit Application</button>
 </form>
 
+<script>
+	const form = document.querySelector<HTMLFormElement>("#reset-application");
+	const consent = form?.querySelector<HTMLInputElement>("#wellbeing-consent");
+	const questions = form?.querySelector<HTMLFieldSetElement>("#wellbeing-questions");
+	const syncConsent = () => { if (questions && consent) questions.disabled = !consent.checked; };
+	consent?.addEventListener("change", syncConsent);
+	window.addEventListener("pageshow", syncConsent);
+	syncConsent();
+</script>
+
 <style>
+	.privacy-note { font: 1rem/1.65 var(--gt-walsheim); color: var(--text-color); }
+	.privacy-note p { margin: 0 0 1rem; font-size: 1rem; }
+	.privacy-note a { color: var(--fg-color); text-decoration: underline; }
+	.consent-choice { display: flex; gap: 0.75rem; align-items: flex-start; font: 1rem/1.65 var(--gt-walsheim); color: var(--text-color); }
+	.consent-choice span { font: inherit; }
+	.consent-choice input { width: 1.25rem; min-height: 1.25rem; height: 1.25rem; flex: 0 0 1.25rem; margin-top: 0.2rem; padding: 0; accent-color: var(--fg-color); }
+	.consent-choice + p { margin-top: 1rem; }
+	.optional-questions { border: 0; padding: 0; min-width: 0; gap: 1.5rem; }
+	.optional-questions > legend { font-family: var(--gt-walsheim); font-size: 1rem; padding: 0 0 1rem; }
+	.optional-questions:disabled { opacity: 0.55; }
+	.optional-questions:focus-within { background: transparent; box-shadow: none; }
+
 	.application-form {
 		display: flex;
 		flex-direction: column;

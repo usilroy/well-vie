@@ -13,7 +13,7 @@ const allowedOrigins = (
 	.map((origin) => origin.trim())
 	.filter(Boolean);
 
-const defaultSiteOrigin = "https://www.well-vie.com";
+const defaultSiteOrigin = allowedOrigins[0];
 
 const confirmationCopy = {
 	reset_application: {
@@ -46,7 +46,7 @@ const allowedRedirectPaths: Record<FormType, string> = {
 	ecosystem_waitlist: "/ecosystem/waitlist-confirmation/",
 };
 
-export async function handleFormRequest(req: Request): Promise<Response> {
+Deno.serve(async (req) => {
 	if (req.method === "OPTIONS") {
 		return new Response(null, { headers: corsHeaders(req) });
 	}
@@ -80,15 +80,7 @@ export async function handleFormRequest(req: Request): Promise<Response> {
 			return redirect(redirectUrl);
 		}
 
-		const privacyError = validateFormPrivacy(formData, formType);
-		if (privacyError) return jsonResponse({ error: privacyError }, 400);
 		const payload = collectPayload(formData);
-		if (formData.get("wellbeing_consent") === "yes") {
-			payload.wellbeing_consent_version = consentVersion;
-			payload.wellbeing_consent_text = consentText;
-			payload.wellbeing_consent_recorded_at = new Date().toISOString();
-		}
-
 		const email = String(payload.email ?? "").trim();
 
 		if (!isValidEmail(email)) {
@@ -113,14 +105,13 @@ export async function handleFormRequest(req: Request): Promise<Response> {
 
 		return redirect(redirectUrl);
 	} catch (error) {
-		console.error("Well-Vie form delivery failed");
+		console.error(error);
 		return jsonResponse(
 			{ error: "There was a problem sending the form. Please try again." },
 			500,
 		);
 	}
-}
-
+});
 
 function collectPayload(formData: FormData): Record<string, string | string[]> {
 	const skipFields = new Set(["form_type", "redirect_url", "_honey"]);
@@ -175,7 +166,7 @@ async function sendEmail({
 	});
 
 	if (!response.ok) {
-		throw new Error(`Resend failed: ${response.status}`);
+		throw new Error(`Resend failed: ${response.status} ${await response.text()}`);
 	}
 }
 
@@ -430,8 +421,6 @@ function jsonResponse(body: unknown, status: number) {
 		headers: {
 			...corsHeaders(),
 			"Content-Type": "application/json",
-			"Cache-Control": "no-store",
-			"Referrer-Policy": "no-referrer",
 		},
 	});
 }
@@ -457,40 +446,3 @@ function escapeHtml(value: string) {
 		.replaceAll('"', "&quot;")
 		.replaceAll("'", "&#039;");
 }
-
-// This version identifies the separate, optional choice shown on the Reset form.
-const consentVersion = "2026-10-02";
-const consentText = "I explicitly consent to Well-Vie (McKenzie Cusick Hair LLC) using the optional wellbeing and health information I choose to share below to review my Reset application and discuss suitable support with me.";
-const wellbeingFields = new Set([
-	"Healing journey", "Healing journey other",
-	"What are you hoping to gain through this experience", "Experience goals other",
-	"Breathwork experience", "Areas currently seeking support", "Support areas other",
-	"Current support needed", "Life on the other side", "Why now", "Anything else",
-]);
-const contactFields = ["Full Name", "email", "Age", "Location"];
-const waitlistFields = ["First Name", "Last Name", "email", "Country", "What are you hoping to gain from The Ecosystem?", "waitlist_notice_version"];
-
-export function validateFormPrivacy(form: FormData, type: FormType): string | null {
-	const allowed = new Set([
-		"form_type", "redirect_url", "_honey",
-		...(type === "reset_application" ? [...contactFields, ...wellbeingFields,
-			"wellbeing_consent", "wellbeing_consent_version", "wellbeing_consent_text"] : waitlistFields),
-	]);
-	let hasWellbeing = false;
-	for (const [key, value] of form.entries()) {
-		if (!allowed.has(key) || typeof value !== "string") return "This form has changed. Please reopen it on www.well-vie.com and try again.";
-		if (value.length > 5000) return "Please keep each answer under 5,000 characters.";
-		if (wellbeingFields.has(key) && value.trim()) hasWellbeing = true;
-	}
-	if (type === "reset_application") {
-		const consent = form.getAll("wellbeing_consent");
-		const granted = consent.length === 1 && consent[0] === "yes";
-		const version = form.getAll("wellbeing_consent_version");
-		if (hasWellbeing && !granted) return "Please choose whether to share optional wellbeing information on the updated Reset application, or apply using contact details only.";
-		if (consent.length && (!granted || version.length !== 1 || version[0] !== consentVersion)) return "Please review the current wellbeing choice on the Reset application before sharing those answers.";
-		if (!granted && (form.has("wellbeing_consent_version") || form.has("wellbeing_consent_text"))) return "Please reopen the Reset application and review the optional wellbeing choice.";
-	}
-	return null;
-}
-
-Deno.serve(handleFormRequest);

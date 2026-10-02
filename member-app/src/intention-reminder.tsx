@@ -1,5 +1,5 @@
 import {useEffect} from 'react';
-import {PenLine} from 'lucide-react';
+import {Leaf,PenLine} from 'lucide-react';
 import {useMember} from './context';
 import {latestIntention} from './reflections-data';
 import {useLoad} from './ui';
@@ -13,10 +13,13 @@ export function IntentionReminder(){
     window.addEventListener('wellvie-reflection-changed',refresh);
     return()=>{document.removeEventListener('visibilitychange',refresh);window.removeEventListener('wellvie-reflection-changed',refresh);};
   },[load.reload]);
-  return <button className="card intention-reminder" onClick={()=>go('/intention')} aria-label={load.data?'Change your current intention: '+load.data.text:'Set an intention'}>
+  const waiting=load.loading&&load.data===undefined;
+  return <button className="card intention-reminder" aria-busy={waiting} onClick={()=>go('/intention')} aria-label={load.data?'Change your current intention: '+load.data.text:'Set an intention'}>
     <span className="intention-card-copy"><span className="eyebrow">Today, I intend to…</span>
-      <span className="intention-card-text">{load.data?.text??'Set an intention'}</span>
-      {(load.loading||load.error||!load.data)&&<small>{load.loading?'Loading your intention…':load.error?'Open to set your intention':'A small direction for today.'}</small>}
+      <span className="intention-card-slot" data-loading={waiting}>
+        <span className="intention-card-text">{load.data?.text??'Set an intention'}</span>
+        <span className="intention-card-placeholder" aria-hidden="true"><span className="wellvie-loading-leaf"><Leaf size={25} strokeWidth={1.5}/></span></span>
+      </span>
     </span><PenLine size={20} aria-hidden="true"/>
   </button>;
 }

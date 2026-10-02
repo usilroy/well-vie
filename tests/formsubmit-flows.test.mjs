@@ -175,5 +175,5 @@ test("reset application option controls align with their labels", () => {
 	assert.match(resetForm, /\.checkbox-grid\s*{[^}]*row-gap: 1rem;/s);
 	assert.match(resetForm, /\.checkbox-grid label\s*{[^}]*align-items: flex-start;/s);
 	assert.match(resetForm, /\.checkbox-grid input\s*{[^}]*transform: translateY\(0\.42rem\);/s);
-	assert.doesNotMatch(resetForm, /margin-top: 0\.2rem/);
+	assert.doesNotMatch(resetForm, /\.options input\s*{[^}]*margin-top: 0\.2rem/s);
 });

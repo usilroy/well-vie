@@ -4,7 +4,6 @@
 .rsvp-options { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.45fr); gap:8px; margin-top:12px; }
 .rsvp-options button { display:inline-flex; justify-content:center; align-items:center; gap:5px; border:1px solid var(--line); border-radius:24px; min-height:44px; padding:9px 12px; background:var(--surface); color:var(--heading); font-size:13px; transition:background 160ms ease,color 160ms ease; }
 .rsvp-options button[aria-pressed=true] { background:var(--heading); border-color:var(--heading); color:var(--paper); }
-.rsvp-options button[aria-pressed=true]:disabled { opacity:1; cursor:default; }
 .gathering .rsvp-error { color:var(--error); font-size:12px; }
 .gathering .rsvp-reconfirm { font-size:12px; color:var(--heading); background:var(--wash); padding:10px 12px; border-radius:12px; }
 .rsvp-extra { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:8px; }

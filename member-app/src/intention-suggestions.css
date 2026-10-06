@@ -1,0 +1,7 @@
+.intention-suggestions { text-align:left; }
+.intention-suggestions > .small { display:block; margin-bottom:10px; color:var(--text); }
+.intention-suggestion-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.intention-suggestion-options button { border:1px solid var(--line); border-radius:18px; background:var(--surface); color:var(--heading); padding:11px 12px; min-height:44px; font-size:13px; line-height:1.45; text-align:left; }
+.intention-suggestion-options button[aria-pressed=true] { background:var(--wash); border-color:var(--sage); }
+.gentle-close .intention-suggestions { margin:18px 0; }
+@media(max-width:340px) { .intention-suggestion-options { grid-template-columns:1fr; } }

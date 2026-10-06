@@ -30,6 +30,10 @@ begin
   perform public.set_event_rsvp(test_event_id,'declined',starts);
   view_data:=public.admin_event_rsvps(test_event_id);
   if (view_data->'counts'->>'maybe')::int<>1 or (view_data->'counts'->>'declined')::int<>1 then raise exception 'Incorrect attendance counts';end if;
+  if jsonb_array_length(view_data->'members')<>2 or (view_data->>'hasMore')::boolean then raise exception 'Nonresponders consumed attendance page slots';end if;
+  if (view_data->'counts'->>'unanswered')::int<>0 then raise exception 'Nonresponders included in counts';end if;
+  view_data:=public.admin_event_rsvps(test_event_id,'unanswered');
+  if jsonb_array_length(view_data->'members')<>0 then raise exception 'Legacy no-reply filter exposed nonresponders';end if;
   view_data:=public.admin_event_rsvps(test_event_id,'maybe');
   if jsonb_array_length(view_data->'members')<>1 or view_data->'members'->0->>'user_id'<>member_id::text then raise exception 'Incorrect response filter';end if;
   view_data:=public.admin_event_rsvps(test_event_id,'all','',20);
@@ -42,6 +46,7 @@ begin
   if not rejected then raise exception 'Old schedule accepted';end if;
   reset role;perform set_config('request.jwt.claims',admin_claims::text,true);set local role authenticated;
   view_data:=public.admin_event_rsvps(test_event_id);
+  if jsonb_array_length(view_data->'members')<>2 then raise exception 'Rescheduled responses missing';end if;
   if (view_data->'counts'->>'needs_confirmation')::int<>2 or (view_data->'counts'->>'maybe')::int<>0 then raise exception 'Reschedule not marked';end if;
   reset role;perform set_config('request.jwt.claims',member_claims::text,true);set local role authenticated;
   perform public.set_event_rsvp(test_event_id,'going',starts+interval '1 day');

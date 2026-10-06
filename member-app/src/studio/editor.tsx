@@ -28,7 +28,7 @@ export function ContentEditor({table,initial,data,repository,onClose,onSaved}:{t
   const localDate=(value:string)=>{const date=new Date(value);return Number.isFinite(+date)?new Date(+date-date.getTimezoneOffset()*60000).toISOString().slice(0,16):'';};
   return <EditorShell title={(initial.id?'Edit ':'New ')+label} busy={busy} dirty={dirty} onClose={onClose} action={<button type="submit" form={formID.current} disabled={busy||!!file||replayDirty}>{busy?'Saving…':'Save'}</button>}>
     <form id={formID.current} onSubmit={e=>{e.preventDefault();if(activationLocked&&draft.active){setError('Listen to the saved recording before publishing it.');return;}void perform(()=>repository.save(table,draft));}}>
-      <fieldset disabled={busy} className="studio-fields">
+      <fieldset disabled={busy||replayDirty} className="studio-fields">
         <Field label={table==='feelings'?'Feeling label':'Title'}><input required maxLength={120} value={str(table==='feelings'?'label':'title')} onChange={e=>set(table==='feelings'?'label':'title',e.target.value)}/></Field>
         {table==='practices'&&<>
           <Field label="Type"><select value={str('kind')} onChange={e=>{set('kind',e.target.value);setFile(null);setPreview('');setAuditioned(false);}}><option value="audio">Audio</option><option value="text">Written</option></select></Field>

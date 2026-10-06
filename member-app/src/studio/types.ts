@@ -162,6 +162,7 @@ export interface AdminRepository {
   ): Promise<void>;
   curate(feelingId: number, needId: number, ids: number[]): Promise<void>;
   reorderFeelings(ids: number[]): Promise<void>;
+  uploadReplay(table: 'events'|'program_weeks', draft: Draft, file: File, id: string, duration: number, onProgress: (percent:number)=>void): Promise<void>;
   uploadAudio(
     practice: Practice,
     file: File,

@@ -1,3 +1,4 @@
+import {ReplayUpload} from './replay-editor';
 import {confirmAction} from '../confirm-dialog';
 import {useEffect,useRef,useState} from 'react';
 import {Alert,EditorShell,Field,Toggle,message} from './shared';
@@ -12,19 +13,20 @@ export function newDraft(table:EditableTable,data:Snapshot):Draft{
 export function ContentEditor({table,initial,data,repository,onClose,onSaved}:{table:EditableTable;initial:Draft;data:Snapshot;repository:AdminRepository;onClose:()=>void;onSaved:()=>void}){
   const [draft,setDraft]=useState<Draft>(()=>({...initial,creation_token:initial.creation_token??crypto.randomUUID()}));
   const [busy,setBusy]=useState(false),[error,setError]=useState(''),[file,setFile]=useState<File|null>(null),[operation,setOperation]=useState('');
+  const [replayDirty,setReplayDirty]=useState(false);
   const [preview,setPreview]=useState(''),[previewBusy,setPreviewBusy]=useState(false),[auditioned,setAuditioned]=useState(false);
   const lock=useRef(false),alive=useRef(true),fileInput=useRef<HTMLInputElement>(null),formID=useRef('studio-editor-'+crypto.randomUUID());
   useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
   const str=(key:string)=>String(draft[key]??''),set=(key:string,value:unknown)=>setDraft(d=>({...d,[key]:value}));
   const changed=JSON.stringify({...draft,creation_token:undefined})!==JSON.stringify({...initial,creation_token:undefined});
-  const dirty=changed||!!file;
+  const dirty=changed||!!file||replayDirty;
   const label=table==='program_weeks'?'Reset week':table==='practices'?'practice':table==='events'?'gathering':'feeling';
   const playable=table==='practices'&&draft.kind==='audio'&&!!draft.audio_path&&!draft.is_placeholder&&!file;
   const activationLocked=table==='practices'&&draft.kind==='audio'&&!initial.active&&(!playable||!auditioned);
   const perform=async(work:()=>Promise<unknown>,done=true)=>{if(lock.current)return;lock.current=true;setBusy(true);setError('');try{await work();if(done&&alive.current)onSaved();}catch(e){if(alive.current)setError(message(e));}finally{lock.current=false;if(alive.current)setBusy(false);}};
   const loadPreview=async()=>{setPreviewBusy(true);setError('');try{const url=await repository.signedUrl(table==='practices'?'practice-audio':'program-media',String(table==='practices'?initial.audio_path:initial.image_path));if(alive.current)setPreview(url);}catch(e){setError(message(e));}finally{setPreviewBusy(false);}};
   const localDate=(value:string)=>{const date=new Date(value);return Number.isFinite(+date)?new Date(+date-date.getTimezoneOffset()*60000).toISOString().slice(0,16):'';};
-  return <EditorShell title={(initial.id?'Edit ':'New ')+label} busy={busy} dirty={dirty} onClose={onClose} action={<button type="submit" form={formID.current} disabled={busy||!!file}>{busy?'Saving…':'Save'}</button>}>
+  return <EditorShell title={(initial.id?'Edit ':'New ')+label} busy={busy} dirty={dirty} onClose={onClose} action={<button type="submit" form={formID.current} disabled={busy||!!file||replayDirty}>{busy?'Saving…':'Save'}</button>}>
     <form id={formID.current} onSubmit={e=>{e.preventDefault();if(activationLocked&&draft.active){setError('Listen to the saved recording before publishing it.');return;}void perform(()=>repository.save(table,draft));}}>
       <fieldset disabled={busy} className="studio-fields">
         <Field label={table==='feelings'?'Feeling label':'Title'}><input required maxLength={120} value={str(table==='feelings'?'label':'title')} onChange={e=>set(table==='feelings'?'label':'title',e.target.value)}/></Field>
@@ -59,6 +61,7 @@ export function ContentEditor({table,initial,data,repository,onClose,onSaved}:{t
       </fieldset>
       <Alert error={error}/>
     </form>
-    {!!initial.id&&(table==='program_weeks'||table==='practices'&&initial.kind==='audio'&&draft.kind==='audio')&&<fieldset disabled={busy||changed} className="studio-fields studio-upload"><legend>{table==='practices'?'Upload recording':'Upload artwork'}</legend><p className="small">{changed?'Save your changes and reopen before uploading.':table==='practices'?'MP3, M4A or WAV · up to 50 MB. Uploading returns this practice to draft.':'JPEG, PNG, WebP or GIF · up to 8 MB.'}</p><input ref={fileInput} type="file" aria-label={table==='practices'?'Audio file':'Artwork file'} accept={table==='practices'?'.mp3,.m4a,.wav':'image/jpeg,image/png,image/webp,image/gif'} onChange={e=>{setFile(e.target.files?.[0]??null);setOperation(crypto.randomUUID());setAuditioned(false);}}/>{file&&<button type="button" className="outline" onClick={()=>{setFile(null);if(fileInput.current)fileInput.current.value='';}}>Clear selected file</button>}<button type="button" className="outline" disabled={!file} onClick={()=>void perform(()=>table==='practices'?repository.uploadAudio(initial as unknown as Practice,file!,operation):repository.uploadImage(initial as unknown as Week,file!,operation))}>{busy?'Uploading…':'Upload file'}</button></fieldset>}
+    {(table==='events'||table==='program_weeks')&&<ReplayUpload table={table} initial={initial} repository={repository} disabled={busy||changed||!!file} onDirty={setReplayDirty} perform={perform}/>}
+    {!!initial.id&&(table==='program_weeks'||table==='practices'&&initial.kind==='audio'&&draft.kind==='audio')&&<fieldset disabled={busy||changed||replayDirty} className="studio-fields studio-upload"><legend>{table==='practices'?'Upload recording':'Upload artwork'}</legend><p className="small">{changed?'Save your changes and reopen before uploading.':table==='practices'?'MP3, M4A or WAV · up to 50 MB. Uploading returns this practice to draft.':'JPEG, PNG, WebP or GIF · up to 8 MB.'}</p><input ref={fileInput} type="file" aria-label={table==='practices'?'Audio file':'Artwork file'} accept={table==='practices'?'.mp3,.m4a,.wav':'image/jpeg,image/png,image/webp,image/gif'} onChange={e=>{setFile(e.target.files?.[0]??null);setOperation(crypto.randomUUID());setAuditioned(false);}}/>{file&&<button type="button" className="outline" onClick={()=>{setFile(null);if(fileInput.current)fileInput.current.value='';}}>Clear selected file</button>}<button type="button" className="outline" disabled={!file} onClick={()=>void perform(()=>table==='practices'?repository.uploadAudio(initial as unknown as Practice,file!,operation):repository.uploadImage(initial as unknown as Week,file!,operation))}>{busy?'Uploading…':'Upload file'}</button></fieldset>}
   </EditorShell>;
 }

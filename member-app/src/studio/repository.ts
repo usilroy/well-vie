@@ -1,3 +1,4 @@
+import {uploadReplayFile} from './replay-upload.ts';
 import {classifyAudio} from "./inventory.ts";
 import { MAX_AUDIO_BYTES, authenticatedFetch } from "./transport.ts";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
@@ -368,6 +369,11 @@ export class LiveRepository implements AdminRepository {
       throw new Error(
         "The upload has not been validated. Retry the same file.",
       );
+  }
+  async uploadReplay(table: 'events'|'program_weeks', draft: Draft, file: File, id: string, duration: number, onProgress: (percent:number)=>void) {
+    await this.checkAccess();
+    await uploadReplayFile(this.client,file,id,onProgress);
+    await this.rpc('attach_replay', {p_id:id,p_target_table:table,p_target_id:draft.id,p_expected_revision:draft.revision,p_duration_sec:duration});
   }
   async uploadAudio(practice: Practice, file: File, operationId: string) {
     await this.checkAccess();

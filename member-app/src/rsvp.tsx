@@ -17,7 +17,7 @@ export function RSVPControl({db,event,initial}:{db:DB;event:Gathering;initial:RS
   return <section className="gathering-rsvp" aria-label={'RSVP for '+event.title} aria-busy={busy}>
     <div className="rsvp-heading"><strong>Will you be joining?</strong><span className="small" role="status">{busy?'Saving…':null}</span></div>
     {status==='needs_confirmation'&&<p className="rsvp-reconfirm">The time has changed. Please RSVP again for this date.</p>}
-    <div className="rsvp-options" role="group" aria-label="Your RSVP">{(['going','maybe','declined'] as const).map(value=><button key={value} type="button" disabled={busy||status===value} aria-pressed={status===value} onClick={()=>void save(value)}><span>{rsvpLabels[value]}</span></button>)}</div>
+    <div className="rsvp-options" role="group" aria-label="Your RSVP">{(['going','maybe','declined'] as const).map(value=><button key={value} type="button" disabled={busy} aria-pressed={status===value} onClick={()=>void save(value)}><span>{rsvpLabels[value]}</span></button>)}</div>
     {error&&<p className="rsvp-error" role="alert">{error}</p>}
     {response&&<div className="rsvp-extra">{(status==='going'||status==='maybe')&&<button type="button" className="text-action" onClick={()=>downloadText('well-vie-gathering-'+event.id+'.ics',calendarText(event),'text/calendar')}><CalendarPlus size={16}/>Add to calendar</button>}<button type="button" className="text-action" disabled={busy} onClick={()=>void save(null)}>Clear response</button></div>}
   </section>;

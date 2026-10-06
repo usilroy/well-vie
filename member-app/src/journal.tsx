@@ -3,6 +3,8 @@ import {useEffect,useRef,useState} from 'react';
 import {BookOpen,Download,History,PenLine,Trash2,Quote,Leaf,Navigation,ChevronRight} from 'lucide-react';
 import {useMember} from './context';
 import {completedAffirmations} from './reflections-data';
+import {isTodaysIntention} from './daily-intention';
+import {useLocalDay} from './use-local-day';
 import {type Entry,type Intention,type Checkin,result,rpc,allRows,downloadText,cleanCopy,gentleStreak} from './data';
 import {Page,Loading,ErrorBox,Empty,useLoad,useAction,dateLabel,timeLabel} from './ui';
 const journalColumns='id,title,prompt_text,practice_id,body,created_at';
@@ -35,6 +37,7 @@ export function WriteJournal({query}:{query:string}){
 }
 export function JournalEntry({id}:{id:number}){const {db,go}=useMember();const load=useLoad(()=>result<Entry|null>(db.from('journal_entries').select(journalColumns).eq('id',id).maybeSingle()),[db,id]);const action=useAction();const entry=load.data;return <Page eyebrow={entry?dateLabel(entry.created_at)+' · '+timeLabel(entry.created_at):'Your journal'} title={entry?.title?.trim()||entry?.prompt_text?.trim()||(entry?dateLabel(entry.created_at):'Your entry')} intro={entry?.prompt_text?.trim()||'A private entry, not shared with other members.'}>{load.loading?<Loading/>:load.error?<ErrorBox error={load.error} retry={load.reload}/>:entry?<div className="card journal-detail"><p className="pre-wrap">{entry.body}</p>{entry.practice_id&&<span className="written-after"><Leaf size={14}/>Written after a practice</span>}<button className="outline danger" disabled={action.busy} onClick={async()=>{if(await confirmAction({title:'Let this entry go?',message:'This permanently deletes the journal entry and cannot be undone.',confirmLabel:'Delete entry',danger:true}))void action.run(async()=>{await result(db.from('journal_entries').delete().eq('id',id));go('/journal');});}}><Trash2 size={17}/>Let this entry go</button></div>:<Empty title="This entry is no longer in your journal"/>}{action.error&&<ErrorBox error={action.error}/>}</Page>;}
 export function ReflectionHistory(){
+  const now=useLocalDay();
   const {db,profile,go}=useMember();
   const load=useLoad(async()=>{
     const [intentions,checkins,entries]=await Promise.all([
@@ -56,7 +59,7 @@ export function ReflectionHistory(){
   const hasHistory=history&&(history.intentions.length||history.checkins.length||history.entries.length||affirmations.data?.length);
   return <Page className="reflection-history-page" action={history&&hasHistory?<button className="journal-tool-icon" title="Take a copy of all of it" aria-label="Take a copy of all of it" onClick={exportHistory} disabled={affirmations.loading||!!affirmations.error}><Download size={20}/></button>:undefined} eyebrow="Private reflections" title="Looking back" intro="Your intentions, completed affirmations and reflections, kept privately in one place.">
     {load.loading||affirmations.loading?<Loading/>:load.error?<ErrorBox error={load.error} retry={load.reload}/>:!history?null:!hasHistory&&!affirmations.error?<Empty title="Every season starts here" icon={<History size={32}/>}><p>Your saved intentions, completed affirmations and journal entries will appear here.</p></Empty>:<div className="reflection-history">
-      {history.intentions[0]&&<article className="card current-intention"><h2 className="reflection-heading"><Navigation size={14}/>Where you are pointed now</h2><h3>{history.intentions[0].text}</h3><small>{dateLabel(history.intentions[0].created_at)}</small></article>}
+      {history.intentions[0]&&isTodaysIntention(history.intentions[0].created_at,now)&&<article className="card current-intention"><h2 className="reflection-heading"><Navigation size={14}/>Where you are pointed now</h2><h3>{history.intentions[0].text}</h3><small>{dateLabel(history.intentions[0].created_at)}</small></article>}
       {history.intentions.length>0&&<section><h2 className="reflection-heading"><Navigation size={14}/>Your intentions</h2><div className="stack">{history.intentions.map(i=><article className="card reflection-row" key={i.id}><p>{i.text}</p><small>{dateLabel(i.created_at)}</small></article>)}</div></section>}
       <section className="affirmation-history"><h2 className="reflection-heading"><Quote size={14}/>Completed affirmations</h2>
         {affirmations.error?<ErrorBox error={affirmations.error} retry={affirmations.reload}/>:!affirmations.data?.length?<p>Affirmations appear here after you tap “I’ve taken this in”.</p>:<div className="stack">{affirmations.data.map(item=><article className="card reflection-row" key={item.id}><h3>{cleanCopy(item.practices.title)}</h3>{item.practices.body_text&&<p className="affirmation-copy line-clamp">{cleanCopy(item.practices.body_text)}</p>}<small>{dateLabel(item.created_at)} · {timeLabel(item.created_at)}</small>{item.practices.active&&<button className="text-action" onClick={()=>go('/practice/'+item.practices.id)}>Read again<ChevronRight size={14}/></button>}</article>)}</div>}

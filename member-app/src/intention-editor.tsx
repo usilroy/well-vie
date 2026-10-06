@@ -3,6 +3,8 @@ import {useEffect,useRef,useState} from 'react';
 import {History} from 'lucide-react';
 import {useMember} from './context';
 import {latestIntention} from './reflections-data';
+import {isTodaysIntention} from './daily-intention';
+import {IntentionSuggestions} from './intention-suggestions';
 import {rpc} from './data';
 import {Page,Loading,ErrorBox,useLoad,useAction} from './ui';
 
@@ -19,7 +21,7 @@ export function IntentionEditor({query}:{query:string}){
   useEffect(()=>{
     if(load.loading||initialized.current)return;
     initialized.current=true;
-    original.current=load.data?.text??'';
+    original.current=load.data&&isTodaysIntention(load.data.created_at)?load.data.text:'';
     setText(original.current);
   },[load.loading,load.data]);
 
@@ -52,6 +54,7 @@ export function IntentionEditor({query}:{query:string}){
       {load.error&&<p className="small">Your current intention couldn’t load. You can still write a new one.</p>}
       <textarea aria-label="Your intention" maxLength={500} value={text} disabled={load.loading||action.busy}
         onChange={event=>{eventID.current=crypto.randomUUID();setText(event.target.value);action.setError(undefined);}}/>
+      <IntentionSuggestions text={text} disabled={load.loading||action.busy} onChoose={suggestion=>{eventID.current=crypto.randomUUID();setText(suggestion);action.setError(undefined);}}/>
       {action.error&&<ErrorBox error="Your intention hasn’t been saved. Please try again."/>}
       <button className="primary full-width" disabled={load.loading||action.busy||!text.trim()}>{action.busy?'Keeping it…':'Keep it'}</button>
     </form>

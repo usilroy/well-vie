@@ -18,12 +18,11 @@ export function Replay({id}:{id:string}) {
   },[db,id]);
   useEffect(()=>()=>{video.current?.pause();},[id]);
   const retry=()=>{resumeAt.current=video.current?.currentTime??0;setPlaybackError('');void load.reload();};
-  return <Page eyebrow="To watch again" title={load.data?.asset.title??'Your replay'} className="replay-page">
+  return <Page title={load.data?.asset.title??'Your replay'} className="replay-page">
     {load.loading?<Loading/>:load.error?<ErrorBox error={load.error} retry={retry}/>:load.data&&<>
       <video ref={video} className="replay-video" controls playsInline preload="metadata" src={load.data.url}
         onPlay={pause} onLoadedMetadata={e=>{if(resumeAt.current)e.currentTarget.currentTime=Math.min(resumeAt.current,e.currentTarget.duration);}}
         onError={()=>setPlaybackError('The video could not load. Reconnect and try again to continue from here.')}/>
-      <p className="small muted">{Math.ceil(load.data.asset.duration_sec/60)} minutes · A little space to return to.</p>
       {playbackError&&<ErrorBox error={playbackError} retry={retry}/>}
     </>}
     <button className="outline" onClick={()=>go('/gatherings')}>Back to gatherings</button>

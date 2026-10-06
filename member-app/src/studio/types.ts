@@ -1,3 +1,4 @@
+import type {AttendancePage,ResponseStatus} from '../rsvp-data';
 export type Revision = {
   id: number;
   revision: number;
@@ -141,6 +142,7 @@ export type PublicConfig = {
 export interface AdminRepository {
   checkAccess(): Promise<string>;
   inventory(): Promise<AudioInventory>;
+  attendance(eventId:number,filter:ResponseStatus|'all',query:string,offset:number):Promise<AttendancePage>;
   load(): Promise<{ data: Snapshot; memberId: string }>;
   save(table: EditableTable, draft: Draft): Promise<EditableRecord>;
   invite(name: string, email: string, isAdmin: boolean): Promise<void>;

@@ -279,6 +279,7 @@ test('all privileged mutations reject a non-admin before contacting their endpoi
     () => repo.memberAction('revoke', 'a@example.com'),
     () => repo.curate(1, 1, [1]),
     () => repo.reorderFeelings([1, 2]),
+    () => repo.attendance(1, 'all', '', 0),
     () => repo.signedUrl('practice-audio', 'private.mp3'),
   ]) await assert.rejects(action(), /administrator access/);
   assert.equal(invoked, 0);

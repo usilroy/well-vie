@@ -56,7 +56,7 @@ export function IntentionEditor({query}:{query:string}){
         onChange={event=>{eventID.current=crypto.randomUUID();setText(event.target.value);action.setError(undefined);}}/>
       <IntentionSuggestions text={text} disabled={load.loading||action.busy} onChoose={suggestion=>{eventID.current=crypto.randomUUID();setText(suggestion);action.setError(undefined);}}/>
       {action.error&&<ErrorBox error="Your intention hasn’t been saved. Please try again."/>}
-      <button className="primary full-width" disabled={load.loading||action.busy||!text.trim()}>{action.busy?'Keeping it…':'Keep it'}</button>
+      <button className="primary full-width" disabled={load.loading||action.busy||!text.trim()}>{action.busy?'Setting it…':'Set it'}</button>
     </form>
   </Page>;
 }

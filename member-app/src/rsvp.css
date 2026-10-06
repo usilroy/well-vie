@@ -1,0 +1,21 @@
+.gathering-rsvp { margin-top:20px; padding-top:18px; border-top:1px solid var(--line); }
+.rsvp-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:24px; color:var(--heading); font-size:14px; }
+.rsvp-heading [role=status] { display:inline-flex; align-items:center; gap:5px; min-width:108px; justify-content:flex-end; font-size:11px; }
+.rsvp-options { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.45fr); gap:8px; margin-top:12px; }
+.rsvp-options button { display:inline-flex; justify-content:center; align-items:center; gap:5px; border:1px solid var(--line); border-radius:24px; min-height:44px; padding:9px 12px; background:var(--surface); color:var(--heading); font-size:13px; transition:background 160ms ease,color 160ms ease; }
+.rsvp-options button[aria-pressed=true] { background:var(--heading); border-color:var(--heading); color:var(--paper); }
+.gathering .rsvp-privacy { font-size:11px; margin-top:10px; }
+.gathering .rsvp-error { color:var(--error); font-size:12px; }
+.gathering .rsvp-reconfirm { font-size:12px; color:var(--heading); background:var(--wash); padding:10px 12px; border-radius:12px; }
+.rsvp-extra { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:8px; }
+.rsvp-extra .text-action { font-size:12px; min-height:44px; display:inline-flex; align-items:center; gap:6px; }
+.rsvp-attendance .attendance-filters { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0; }
+.attendance-filters button { border:1px solid var(--line); border-radius:24px; min-height:44px; padding:8px 14px; font-size:12px; color:var(--heading); }
+.attendance-filters button[aria-pressed=true] { background:var(--wash); border-color:var(--sage); }
+.attendance-person { display:flex; gap:12px; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--line); }
+.attendance-person strong { font-size:14px; color:var(--heading); overflow-wrap:anywhere; }
+.attendance-person span { flex-shrink:0; font-size:12px; }
+.attendance-person [data-status=going] { color:var(--sage); }
+.attendance-summary { font-size:13px; }
+.attendance-sheet .sheet-body { min-height:340px; }
+@media(prefers-reduced-motion:reduce) { .rsvp-options button { transition:none; } }

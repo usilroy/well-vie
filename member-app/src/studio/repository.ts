@@ -1,3 +1,4 @@
+import type {AttendancePage,ResponseStatus} from '../rsvp-data.ts';
 import {uploadReplayFile} from './replay-upload.ts';
 import {classifyAudio} from "./inventory.ts";
 import { MAX_AUDIO_BYTES, authenticatedFetch } from "./transport.ts";
@@ -69,6 +70,13 @@ export class LiveRepository implements AdminRepository {
       rows.push(...((data ?? []) as unknown as Record<string, unknown>[]));
       if (!data || data.length < 500) return rows;
     }
+  }
+  async attendance(eventId:number,filter:ResponseStatus|'all',query:string,offset:number):Promise<AttendancePage> {
+    await this.checkAccess();
+    const {data,error}=await this.client.rpc('admin_event_rsvps',{p_event_id:eventId,p_filter:filter,p_query:query,p_offset:offset});
+    fail(error);
+    await this.checkAccess();
+    return data as AttendancePage;
   }
   async inventory() {
     await this.checkAccess();

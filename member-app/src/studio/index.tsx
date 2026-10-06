@@ -19,7 +19,7 @@ export const studioAreas=[
   {path:'curation',title:'Curation',description:'Choose up to three practices for each pairing, or use the fallback.',icon:Route},
   {path:'feelings',title:'Feelings',description:'Name, order, show, or rest the words used at check-in.',icon:Heart},
   {path:'reset',title:'Reset weeks',description:'Arrange call replays, practices, imagery, and journal invitations.',icon:Waves},
-  {path:'gatherings',title:'Gatherings',description:'Schedule live rooms, add replays, and retire old listings.',icon:CalendarDays},
+  {path:'gatherings',title:'Gatherings',description:'Schedule calls, see RSVPs, and add replays.',icon:CalendarDays},
   {path:'intake',title:'Intake',description:'Read the private words members shared before joining.',icon:ClipboardList},
   {path:'guide',title:'Studio guide',description:'A plain-language guide to tending every part of this space.',icon:BookOpen},
 ];
@@ -30,6 +30,7 @@ const chapters=[
   ['Tend the language','Rename, reorder or hide feelings. Hiding preserves old check-ins. The own-words list contains only phrases and counts.'],
   ['Build The Reset','Each week holds a call replay, breathwork, somatic practice and journal invitations. Save the week first, then upload its artwork. Artwork changes do not overwrite the other week details.'],
   ['Publish a gathering','Add its date, duration and live link. The time picker uses your device’s time zone; members see their local time. After the call, reopen the gathering, choose an MP4 under Upload a private replay, preview it, and upload. Members find it under Gatherings → To watch again. You can also upload a call video directly inside a Reset week. Turn off Show to members to retire it from both upcoming and replay shelves.'],
+  ['See who is coming','Open Gatherings and choose View RSVPs on a call. See Going, Maybe, Can’t make it and No reply, search members, or load more responses. Only admins can see the attendance list. If you change the call time, earlier responses are marked Confirm again until each member responds to the new date. RSVPs do not send emails or reminders.'],
   ['Tend circles','Use Circle → New circle to create a private group. Open a circle’s options to manage members. Members added to a circle can read its earlier messages.'],
   ['Care for the community','Circle safety holds profile reviews and member reports. Open Chat review & reports for messages. Read the reported content and photo before making a decision.'],
   ['Protect member trust','Intake is visible only to founders. Members’ private journals, check-ins and intention histories never appear in Studio. Give founder access sparingly and confirm the correct person before permanent removal.'],

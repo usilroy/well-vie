@@ -345,3 +345,10 @@ test('revoked founder access during a load discards the fetched snapshot',async(
   let checks=0;const client={rpc:async(name:string)=>({data:name==='current_member_context'?{id:'admin',isAdmin:++checks===1}:[],error:null}),from:()=>({select:()=>({order:()=>({range:async()=>({data:[],error:null})})})})};
   await assert.rejects(new LiveRepository(client as unknown as SupabaseClient).load(),/administrator access/);
 });
+
+test('private replay upload rejects a non-admin before requesting any storage access',async()=>{
+  const {LiveRepository}=await import('../src/studio/repository.ts');
+  const client={rpc:async()=>({data:{id:'member',isAdmin:false},error:null}),get storage(){throw new Error('Storage must not be accessed');}};
+  const repo=new LiveRepository(client as any);
+  await assert.rejects(repo.uploadReplay('events',{id:2,revision:1},{} as File,'upload',1745,()=>{}),/administrator access/);
+});

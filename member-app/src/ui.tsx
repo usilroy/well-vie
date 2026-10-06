@@ -1,3 +1,4 @@
+import {replayRoute} from './replay-link';
 import type {NavigationCheck} from './confirm-dialog';
 import {useCallback,useEffect,useRef,useState,type ReactNode} from 'react';
 import {ArrowLeft,ChevronRight,LoaderCircle} from 'lucide-react';
@@ -13,7 +14,7 @@ export function LinkCard({title,detail,icon,onClick}:{title:string;detail?:strin
 export function useLoad<T>(load:()=>Promise<T>,keys:unknown[]=[]){const [data,setData]=useState<T>();const [error,setStoredError]=useState<string>();const setError=(e:unknown)=>setStoredError(e===undefined?undefined:typeof e==='string'?e:safeError(e));const [loading,setLoading]=useState(true);const ref=useRef(load);ref.current=load;const generation=useRef(0);const reload=useCallback(async()=>{const id=++generation.current;setError(undefined);setLoading(true);try{const next=await ref.current();if(id===generation.current)setData(next);}catch(e){if(id===generation.current)setError(e);}finally{if(id===generation.current)setLoading(false);}},keys);useEffect(()=>{setData(undefined);void reload();return()=>{generation.current++;};},[reload]);return {data,setData,error,loading,reload};}
 export function useAction(){const [busy,setBusy]=useState(false);const [error,setStoredError]=useState<string>();const setError=(e:unknown)=>setStoredError(e===undefined?undefined:typeof e==='string'?e:safeError(e));const lock=useRef(false);const run=async(fn:()=>Promise<void>)=>{if(lock.current)return;lock.current=true;setBusy(true);setError(undefined);try{await fn();}catch(e){setError(e);}finally{lock.current=false;setBusy(false);}};return {busy,error,setError,run};}
 export function useRoute(){
-  const read=()=>{try{return decodeURI(location.hash.slice(1)||'/check-in');}catch{return '/check-in';}};
+  const read=()=>{try{return decodeURI(location.hash.slice(1)||replayRoute(location.search)||'/check-in');}catch{return '/check-in';}};
   const [route,setRoute]=useState(read);const current=useRef(route),checking=useRef(false);current.current=route;
   useEffect(()=>{
     let mounted=true;

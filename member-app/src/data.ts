@@ -3,7 +3,7 @@ import {config} from './config.ts';
 export type Feeling={id:number;slug:string;label:string;sort_order:number};
 export type Need=Feeling&{invitation:string};
 export type Practice={id:number;title:string;need_slug:string;kind:'audio'|'text';description:string;body_text:string|null;audio_path:string|null;duration_sec:number|null;is_placeholder:boolean};
-export type Profile={id:string;name:string;photo_path:string|null;intention:string;about:string;hoping:string;path:string;profile_visible:boolean;circle_moderation_status:string;circle_moderation_note:string|null;is_admin:boolean;welcomed_at:string|null;profile_prompts:Record<string,string>};
+export type Profile={programme_access?:'programme'|'app_only';id:string;name:string;photo_path:string|null;intention:string;about:string;hoping:string;path:string;profile_visible:boolean;circle_moderation_status:string;circle_moderation_note:string|null;is_admin:boolean;welcomed_at:string|null;profile_prompts:Record<string,string>};
 export type Entry={id:number;title:string|null;prompt_text:string|null;practice_id:number|null;body:string;created_at:string};
 export type Intention={id:number;text:string;created_at:string};
 export type Checkin={id:number;custom_feeling:string|null;created_at:string;feelings:{label:string}|null;needs:{label:string}|null};
@@ -13,7 +13,7 @@ export type Circle={id:string;name:string;description:string;member_count:number
 export type Message={id:string;seq:number;circle_id:string;sender_id:string|null;sender_name:string;body:string;reply_to:string|null;reply_body:string|null;reply_sender:string|null;attachment_path:string|null;attachment_name:string|null;attachment_type:string|null;created_at:string;edited_at:string|null;deleted_at:string|null;reactions:{user_id:string;emoji:string}[];moderation_status:string;revision:number};
 export type ChatMember={id:string;name:string;last_read_seq:number;is_typing:boolean};
 export const practiceColumns='id,title,need_slug,kind,description,body_text,audio_path,duration_sec,is_placeholder';
-export const profileColumns='id,name,photo_path,intention,about,hoping,path,profile_visible,circle_moderation_status,circle_moderation_note,is_admin,welcomed_at,profile_prompts';
+export const profileColumns='id,name,photo_path,intention,about,hoping,path,profile_visible,circle_moderation_status,circle_moderation_note,is_admin,welcomed_at,profile_prompts,programme_access';
 export async function result<T>(request:PromiseLike<{data:unknown;error:unknown}>):Promise<T>{const {data,error}=await request;if(error)throw error;return data as T;}
 export function makeClient(getToken:()=>Promise<string|null>){return createClient(config.supabaseUrl,config.supabaseKey,{accessToken:getToken,global:{fetch:(input,init)=>fetch(input,{...init,cache:'no-store'})},auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});}
 export type DB=SupabaseClient;

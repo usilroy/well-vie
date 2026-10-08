@@ -280,6 +280,8 @@ test('all privileged mutations reject a non-admin before contacting their endpoi
     () => repo.curate(1, 1, [1]),
     () => repo.reorderFeelings([1, 2]),
     () => repo.attendance(1, 'all', '', 0),
+    () => repo.programmeAccess('member',null,'app_only','programme'),
+    () => repo.safetySummary(),
     () => repo.signedUrl('practice-audio', 'private.mp3'),
   ]) await assert.rejects(action(), /administrator access/);
   assert.equal(invoked, 0);
@@ -352,4 +354,16 @@ test('private replay upload rejects a non-admin before requesting any storage ac
   const client={rpc:async()=>({data:{id:'member',isAdmin:false},error:null}),get storage(){throw new Error('Storage must not be accessed');}};
   const repo=new LiveRepository(client as any);
   await assert.rejects(repo.uploadReplay('events',{id:2,revision:1},{} as File,'upload',1745,()=>{}),/administrator access/);
+});
+
+
+test('member access sends one target and the previously observed access for conflict protection',async()=>{
+ const calls:{name:string,args:unknown}[]=[];
+ const client={rpc:async(name:string,args:unknown)=>{calls.push({name,args});return {data:name==='current_member_context'?{id:'admin',isAdmin:true}:null,error:null};}};
+ const repo=new LiveRepository(client as unknown as SupabaseClient);
+ await repo.programmeAccess('member',null,'app_only','programme');
+ await repo.programmeAccess(null,'pending@example.test','programme','app_only');
+ assert.deepEqual(calls.filter(c=>c.name==='set_member_programme_access').map(c=>c.args),[
+ {p_user_id:'member',p_email:null,p_access:'app_only',p_expected:'programme'},
+ {p_user_id:null,p_email:'pending@example.test',p_access:'programme',p_expected:'app_only'}]);
 });

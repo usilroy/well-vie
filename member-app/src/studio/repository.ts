@@ -5,6 +5,7 @@ import { MAX_AUDIO_BYTES, authenticatedFetch } from "./transport.ts";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type {
   AdminRepository,
+  ProgrammeAccess,
   Draft,
   EditableRecord,
   EditableTable,
@@ -105,13 +106,13 @@ export class LiveRepository implements AdminRepository {
       [
         "members",
         "profiles",
-        "id,name,is_admin,profile_visible,created_at,photo_path,intention,about,hoping,profile_prompts,circle_moderation_status,circle_moderation_note,circle_moderation_version,circle_content_revision,updated_at",
+        "id,name,is_admin,programme_access,profile_visible,created_at,photo_path,intention,about,hoping,profile_prompts,circle_moderation_status,circle_moderation_note,circle_moderation_version,circle_content_revision,updated_at",
         "id",
       ],
       [
         "invites",
         "member_invites",
-        "email,name,is_admin,accepted_by,accepted_at,created_at",
+        "email,name,is_admin,programme_access,accepted_by,accepted_at,created_at",
         "email",
       ],
       [
@@ -245,14 +246,23 @@ export class LiveRepository implements AdminRepository {
     if (data?.error) throw new Error(data.error);
     return data;
   }
-  async invite(name: string, email: string, isAdmin: boolean) {
+  async invite(name: string, email: string, isAdmin: boolean, programmeAccess?: ProgrammeAccess) {
     const normalized = validateInvite(name, email);
     await this.edge("admin-invite-member", {
       name: name.trim(),
       email: normalized,
       isAdmin,
+      ...(programmeAccess === undefined ? {} : {programmeAccess}),
       sendEmail: true,
     });
+  }
+  async programmeAccess(userID: string|null, email: string|null, access: ProgrammeAccess, expected: ProgrammeAccess) {
+    await this.checkAccess();
+    await this.rpc('set_member_programme_access',{p_user_id:userID,p_email:email,p_access:access,p_expected:expected});
+  }
+  async safetySummary() {
+    await this.checkAccess();
+    const {data,error}=await this.client.rpc('admin_safety_summary');fail(error);return data;
   }
   async memberAction(
     action: "role" | "remove" | "revoke",

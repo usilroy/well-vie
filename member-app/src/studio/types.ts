@@ -1,3 +1,4 @@
+export type ProgrammeAccess = "programme" | "app_only";
 import type {AttendancePage,ResponseStatus} from '../rsvp-data';
 export type Revision = {
   id: number;
@@ -49,6 +50,7 @@ export type Gathering = Revision & {
   active: boolean;
 };
 export type Member = {
+  programme_access?: ProgrammeAccess;
   id: string;
   name: string;
   is_admin: boolean;
@@ -66,6 +68,7 @@ export type Member = {
   updated_at: string;
 };
 export type Invite = {
+  programme_access?: ProgrammeAccess;
   email: string;
   name: string;
   is_admin: boolean;
@@ -145,7 +148,9 @@ export interface AdminRepository {
   attendance(eventId:number,filter:ResponseStatus|'all',query:string,offset:number):Promise<AttendancePage>;
   load(): Promise<{ data: Snapshot; memberId: string }>;
   save(table: EditableTable, draft: Draft): Promise<EditableRecord>;
-  invite(name: string, email: string, isAdmin: boolean): Promise<void>;
+  invite(name: string, email: string, isAdmin: boolean, programmeAccess?: ProgrammeAccess): Promise<void>;
+  programmeAccess(userID: string|null, email: string|null, access: ProgrammeAccess, expected: ProgrammeAccess): Promise<void>;
+  safetySummary(): Promise<{profile_approvals:number;profile_reports:number;chat_approvals:number;chat_reports:number}>;
   memberAction(
     action: "role" | "remove" | "revoke",
     id: string,

@@ -25,6 +25,6 @@ export function Replay({id}:{id:string}) {
         onError={()=>setPlaybackError('The video could not load. Reconnect and try again to continue from here.')}/>
       {playbackError&&<ErrorBox error={playbackError} retry={retry}/>}
     </>}
-    <button className="outline" onClick={()=>go('/gatherings')}>Back to gatherings</button>
+    <button className="outline replay-back" onClick={()=>go('/gatherings')}>Back to gatherings</button>
   </Page>;
 }

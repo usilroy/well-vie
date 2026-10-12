@@ -25,7 +25,8 @@ export async function uploadReplayFile(client:SupabaseClient,file:File,id:string
   if(existing.data?.some(object=>object.name===id+'.mp4')){onProgress(100);return;}
   const {data,error}=await client.storage.from('replay-videos').createSignedUploadUrl(path,{upsert:false});
   if(error||!data)throw error??new Error('Could not prepare this upload.');
-  const endpoint=config.supabaseUrl.replace('.supabase.co','.storage.supabase.co')+'/storage/v1/upload/resumable';
+  // x-signature is verified by the signed route; the ordinary route expects a user JWT.
+  const endpoint=config.supabaseUrl.replace('.supabase.co','.storage.supabase.co')+'/storage/v1/upload/resumable/sign';
   await new Promise<void>((resolve,reject)=>{
     const upload=new Upload(file,{
       endpoint,headers:{'x-signature':data.token},chunkSize:6*1024*1024,

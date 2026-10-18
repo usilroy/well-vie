@@ -9,7 +9,7 @@ export function ReplayUpload({table,initial,repository,disabled,onDirty,perform}
   const existing=String(initial[table==='events'?'replay_url':'call_replay_url']??'');
   useEffect(()=>{if(!file){setPreview('');return;}const url=URL.createObjectURL(file);setPreview(url);return()=>URL.revokeObjectURL(url);},[file]);
   return <fieldset disabled={disabled} className="studio-fields studio-upload"><legend>Upload a private replay</legend>
-    <p className="small">MP4 (H.264 / AAC) · up to 500 MB. Preview it, then upload. Keep this page open until it finishes.</p>
+    <p className="small">MP4 (H.264 / AAC) · up to 3 GB. Preview it, then upload. Keep this page open until it finishes.</p>
     {existing&&<a href={existing} target="_blank" rel="noreferrer">{replayRoute(new URL(existing).search)?'Watch attached replay':'Open current replay'}</a>}
     {!initial.id?<p className="small">Save this {table==='events'?'gathering':'week'} first, then reopen it to add a video.</p>:<>
       <Field label="Replay video"><input ref={fileInput} type="file" accept="video/mp4,.mp4" onChange={e=>{const next=e.target.files?.[0]??null;setError('');setWatched(false);setProgress(null);try{if(next)validateReplayFile(next);setFile(next);setID(crypto.randomUUID());onDirty(!!next);}catch(error){setError((error as Error).message);e.target.value='';setFile(null);onDirty(false);}}}/></Field>

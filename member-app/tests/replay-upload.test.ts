@@ -3,7 +3,18 @@ import {createServer} from 'node:http';
 import test from 'node:test';
 import type {SupabaseClient} from '@supabase/supabase-js';
 import {config} from '../src/config.ts';
-import {uploadReplayFile} from '../src/studio/replay-upload.ts';
+import {uploadReplayFile,validateReplayFile} from '../src/studio/replay-upload.ts';
+
+test('replay selection accepts full-length calls through 3 GB and rejects larger files',()=>{
+  const file={name:'Reset call 3.mp4',type:'video/mp4',size:814_136_555};
+  for(const size of [file.size,2_147_483_648,3_000_000_000]){
+    assert.doesNotThrow(()=>validateReplayFile({...file,size}));
+  }
+  for(const size of [0,3_000_000_001]){
+    assert.throws(()=>validateReplayFile({...file,size}),/up to 3 GB/);
+  }
+  assert.throws(()=>validateReplayFile({...file,name:'call.mov',type:'video/quicktime'}),/MP4/);
+});
 
 test('signed replay upload uses the signed TUS route and sends every chunk', async () => {
   const source=Buffer.alloc(6*1024*1024+123,7);

@@ -1,10 +1,10 @@
 import {Upload} from 'tus-js-client';
 import type {SupabaseClient} from '@supabase/supabase-js';
 import {config} from '../config.ts';
-export const MAX_REPLAY_BYTES=500_000_000;
+export const MAX_REPLAY_BYTES=3_000_000_000;
 export function validateReplayFile(file:Pick<File,'name'|'size'|'type'>) {
   if(!/\.mp4$/i.test(file.name)||file.type&&file.type!=='video/mp4')throw new Error('Choose an MP4 video (H.264 with AAC audio).');
-  if(file.size<=0||file.size>MAX_REPLAY_BYTES)throw new Error('Choose a video up to 500 MB.');
+  if(file.size<=0||file.size>MAX_REPLAY_BYTES)throw new Error('Choose a video up to 3 GB.');
 }
 export async function inspectReplay(file:File):Promise<number> {
   validateReplayFile(file);
